@@ -17,6 +17,7 @@ Product</a>
  <thead>
  <tr>
  <th scope="col">S#</th>
+ <th scope="col">Image</th>
  <th scope="col">Code</th>
  <th scope="col">Name</th>
  <th scope="col">Quantity</th>
@@ -29,6 +30,16 @@ Product</a>
 <tr>
  <th scope="row">{{ $loop->iteration 
 }}</th>
+ <td class="text-center">
+ @if($product->image && file_exists(public_path('storage/' . $product->image)))
+ <img src="{{ asset('storage/' . $product->image) }}" 
+ alt="{{ $product->name }}" 
+ class="img-thumbnail"
+ style="max-width: 50px; height: auto;">
+ @else
+ <span class="text-muted">No image</span>
+ @endif
+ </td>
  <td>{{ $product->code }}</td>
  <td>{{ $product->name }}</td>
  <td>{{ $product->quantity }}</td>
@@ -49,7 +60,7 @@ product?');"><i class="bi bi-trash"></i> Delete</button>
  </td>
  </tr>
 @empty
- <td colspan="6">
+ <td colspan="7">
  <span class="text-danger">
  <strong>No Product Found!</strong>
  </span>

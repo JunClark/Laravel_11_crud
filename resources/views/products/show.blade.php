@@ -13,6 +13,16 @@ btn-primary btn-sm">&larr; Back</a>
  </div>
  </div>
  <div class="card-body">
+ @if($product->image && file_exists(public_path('storage/' . $product->image)))
+ <div class="row mb-4">
+ <div class="col-md-8 offset-md-2 text-center">
+ <img src="{{ asset('storage/' . $product->image) }}" 
+ alt="{{ $product->name }}" 
+ class="img-fluid rounded shadow-sm"
+ style="max-height: 300px; width: auto;">
+ </div>
+ </div>
+ @endif
  <div class="row">
  <label for="code" class="col-md-4 col-formlabel text-md-end text-start"><strong>Code:</strong></label>
  <div class="col-md-6" style="line-height:

@@ -9,13 +9,19 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::resource('products', ProductController::class);
+// Guest routes (for non-authenticated users)
+Route::middleware('guest')->group(function () {
+    // Registration routes
+    Route::get('/register', [RegisterController::class, 'show'])->name('register');
+    Route::post('/register', [RegisterController::class, 'register']);
 
-// Registration routes
-Route::get('/register', [RegisterController::class, 'show'])->name('register');
-Route::post('/register', [RegisterController::class, 'register']);
+    // Login routes
+    Route::get('/login', [LoginController::class, 'show'])->name('login');
+    Route::post('/login', [LoginController::class, 'login']);
+});
 
-// Login routes
-Route::get('/login', [LoginController::class, 'show'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// Protected routes (require authentication)
+Route::middleware('auth')->group(function () {
+    Route::resource('products', ProductController::class);
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+});

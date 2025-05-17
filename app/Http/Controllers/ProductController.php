@@ -5,6 +5,8 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
+
 class ProductController extends Controller
 {
  /**
@@ -29,7 +31,17 @@ class ProductController extends Controller
  public function store(StoreProductRequest $request) : 
 RedirectResponse
  {
- Product::create($request->validated());
+ $validatedData = $request->validated();
+ 
+ if ($request->hasFile('image')) {
+ $image = $request->file('image');
+ $imageName = time() . '_' . $image->getClientOriginalName();
+ $image->move(public_path('storage/products'), $imageName);
+ $validatedData['image'] = 'products/' . $imageName;
+ }
+
+ Product::create($validatedData);
+ 
  return redirect()->route('products.index')
  ->withSuccess('New product is added successfully.');
  }
@@ -53,7 +65,22 @@ RedirectResponse
  public function update(UpdateProductRequest $request, Product
 $product) : RedirectResponse
  {
- $product->update($request->validated());
+ $validatedData = $request->validated();
+
+ if ($request->hasFile('image')) {
+ // Delete old image if exists
+ if ($product->image && file_exists(public_path('storage/' . $product->image))) {
+ unlink(public_path('storage/' . $product->image));
+ }
+ 
+ $image = $request->file('image');
+ $imageName = time() . '_' . $image->getClientOriginalName();
+ $image->move(public_path('storage/products'), $imageName);
+ $validatedData['image'] = 'products/' . $imageName;
+ }
+
+ $product->update($validatedData);
+ 
  return redirect()->back()
  ->withSuccess('Product is updated successfully.');
  }
@@ -62,7 +89,12 @@ $product) : RedirectResponse
  */
  public function destroy(Product $product) : RedirectResponse
  {
+ if ($product->image && file_exists(public_path('storage/' . $product->image))) {
+ unlink(public_path('storage/' . $product->image));
+ }
+ 
  $product->delete();
+ 
  return redirect()->route('products.index')
  ->withSuccess('Product is deleted successfully.');
  }
